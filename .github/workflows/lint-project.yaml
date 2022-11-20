@@ -21,10 +21,20 @@ jobs:
         
       - name: Dependencias do GitHub
         run: |
-          install.packages(c("dplyr","stringr","glue","xml2","httr","zeallot","abjutils","gt","jsonlite", "remotes", "tidygeocoder"))
-          library(remotes)
-          install_github("tidyverse/purrr")
-          
+          install.packages('remotes')
+          remotes::install_deps(dependencies = TRUE)
+          remotes::install_github("tidyverse/purrr")
+          remotes::install_cran("dplyr")
+          remotes::install_cran("xml2")
+          remotes::install_cran("zeallot")
+          remotes::install_cran("abjutils")
+          remotes::install_cran("stringr")
+          remotes::install_cran("httr")
+          remotes::install_cran("gt")
+          remotes::install_cran("jsonlite")
+          remotes::install_cran("tidygeocoder")
+        shell: Rscript {0}
+        
       - name: Web Scraping
         run: |
           Rscript scraping_github_action.R
