@@ -8,10 +8,8 @@ library(abjutils)
 library(jsonlite)
 library(gt)
 library(tidygeocoder)
-library(progress)
 library(httr)
 library(zeallot)
-library(tictoc)
 
 # Função que faz uso da API
 # https://freeproxyapi.com
@@ -729,7 +727,7 @@ varrer_cidade <- function(
     tibble::as_tibble()
 }
 
-dados <- varrer_cidade()
+# dados <- varrer_cidade()
 
 add_coordenadas <- function(df, complemento = "João Pessoa, Brasil"){
   df |> 
@@ -746,8 +744,8 @@ add_coordenadas <- function(df, complemento = "João Pessoa, Brasil"){
     dplyr::select(-end_completo)
 }
 
-dados_joao_pessoa_com_coord <- add_coordenadas(df = dados_joao_pessoa)
-save(
-  dados_joao_pessoa_com_coord,
-  file = "~/Dropbox/GitHub/API/dados_joao_pessoa_com_coord.RData"
-)
+# dados_joao_pessoa_com_coord <- add_coordenadas(df = dados_joao_pessoa)
+# save(
+#   dados_joao_pessoa_com_coord,
+#   file = "~/Dropbox/GitHub/API/dados_joao_pessoa_com_coord.RData"
+# )
