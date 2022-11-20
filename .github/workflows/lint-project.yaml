@@ -17,34 +17,20 @@ jobs:
       - uses: r-lib/actions/setup-r@v2
         with:
           use-public-rspm: true
-          
-      - uses: r-lib/actions/setup-r-dependencies@v2
-        with:
-          extra-packages: |
-            any::xml2
-            any::httr
-            any::rvest
-            any::dplyr
-            any::stringr
-            any::zeallot
-            any::abjutils
-            any::gt
-            any::jsonlite
-            any::glue
-            any::tidygeocoder
-            any::remotes
-        - name: Dependencias do GitHub
-          run: |
-            remotes::install_github("tidyverse/purrr", force = TRUE)
+        
+      - name: Dependencias do GitHub
+        run: |
+          remotes::install_github("tidyverse/purrr", force = TRUE)
+          install.packages(c("dplyr","stringr","purrr","glue","xml2","httr","zeallot","abjutils","gt","jsonlite", "remotes", tidygeocoder))
             
-        - name: Web Scraping
-          run: |
-            Rscript scraping_github_action.R
+      - name: Web Scraping
+        run: |
+          Rscript scraping_github_action.R
             
-        - name: Commits
-          run: |
-            git config --local user.email "actions@github.com"
-            git config --local user.name "GitHub Actions"
-            git add .
-            git commit -m 'Update data' || echo "Update data"
-            git push origin || echo "Update data"
+      - name: Commits
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+          git add .
+          git commit -m 'Update data' || echo "Update data"
+          git push origin || echo "Update data"
