@@ -21,9 +21,9 @@ jobs:
         
       - name: Dependencias do GitHub
         run: |
-          remotes::install_github("tidyverse/purrr", force = TRUE)
           install.packages(c("dplyr","stringr","glue","xml2","httr","zeallot","abjutils","gt","jsonlite", "remotes", "tidygeocoder"))
-            
+          remotes::install_github("tidyverse/purrr", force = TRUE)
+          
       - name: Web Scraping
         run: |
           Rscript scraping_github_action.R
