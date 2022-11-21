@@ -45,7 +45,7 @@ jobs:
       - name: Web Scraping
         run: |
           source(scraping_github_action.R)
-        shell: Rscript{0}
+        shell: Rscript {0}
             
       - name: Commits
         run: |
