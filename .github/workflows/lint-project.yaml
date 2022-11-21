@@ -51,6 +51,6 @@ jobs:
         run: |
           git config --local user.email "actions@github.com"
           git config --local user.name "GitHub Actions"
-          git add valentina_github_action.RData
+          git add .
           git commit -m 'Dados obtidos por web scraping atualizado' || echo "Dados obtidos por web scraping atualizado"
           git push origin || echo "Base de dados atualizada"
