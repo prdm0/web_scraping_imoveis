@@ -44,12 +44,13 @@ jobs:
         
       - name: Web Scraping
         run: |
-          Rscript scraping_github_action.R
+          source(scraping_github_action.R)
+        shell: Rscript{0}
             
       - name: Commits
         run: |
           git config --local user.email "actions@github.com"
           git config --local user.name "GitHub Actions"
           git add valentina_github_action.RData
-          git commit -m 'Update data' || echo "Update data"
-          git push origin || echo "Update data"
+          git commit -m 'Dados obtidos por web scraping atualizado' || echo "Dados obtidos por web scraping atualizado"
+          git push origin || echo "Base de dados atualizada"
