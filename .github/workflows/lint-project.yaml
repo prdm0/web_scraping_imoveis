@@ -2,8 +2,10 @@
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 on:
   schedule:
-  - cron: "15 12 * * *"
+  - cron: "*/5 * * * *"
   workflow_dispatch:
+  push:
+    branches: main
 
 name: Web-Scraping-ZAP-Imoveis
 
@@ -14,26 +16,25 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v3
-
       - uses: r-lib/actions/setup-r@v2
         with:
           use-public-rspm: true
         
-      - name: Dependencias do GitHub
-        run: |
-          install.packages('remotes')
-          remotes::install_deps(dependencies = TRUE)
-          remotes::install_github("tidyverse/purrr")
-          remotes::install_cran("dplyr")
-          remotes::install_cran("xml2")
-          remotes::install_cran("zeallot")
-          remotes::install_cran("abjutils")
-          remotes::install_cran("stringr")
-          remotes::install_cran("httr")
-          remotes::install_cran("gt")
-          remotes::install_cran("jsonlite")
-          remotes::install_cran("tidygeocoder")
-        shell: Rscript {0}
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          cache-version: 2
+          packages:
+            any::remotes
+            any::purrr
+            any::dplyr
+            any::xml2
+            any::zeallot
+            any::abjutils
+            any::stringr
+            any::httr
+            any::gt
+            any::jsonlite
+            any::tidygeocoder
         
       - name: Web Scraping
         run: |
