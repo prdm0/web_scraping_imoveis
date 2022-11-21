@@ -8,10 +8,8 @@ library(abjutils)
 library(jsonlite)
 library(gt)
 library(tidygeocoder)
-library(progress)
 library(httr)
 library(zeallot)
-library(tictoc)
 
 # Função que faz uso da API
 # https://freeproxyapi.com
