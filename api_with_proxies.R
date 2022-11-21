@@ -8,8 +8,10 @@ library(abjutils)
 library(jsonlite)
 library(gt)
 library(tidygeocoder)
+library(progress)
 library(httr)
 library(zeallot)
+library(tictoc)
 
 # Função que faz uso da API
 # https://freeproxyapi.com
@@ -49,13 +51,13 @@ encontrando_proxies_api <- function(string_url = "https://www.zapimoveis.com.br/
     proxy <- obter_proxy()
     result <- teste_url(proxy)
   }
-
+  
   pagina_vazia <- function(){
-      string_url |> 
+    string_url |> 
       xml2::read_html() |> 
       xml2::xml_find_first(xpath =  "//div[@class='results__list js-results']//strong")
   }
-
+  
   if(result$status_code != 200 | is.na(pagina_vazia()))
     return(NA)
   else
@@ -115,112 +117,123 @@ montando_link <-
     imoveis = "imoveis",
     browser = TRUE
   ){
-  
-  # O argumento "negocio" poderá ser:
-  # 1. venda
-  # 2. aluguel
-  # 3. lancamentos   
     
-  # O argumento "imoveis" poderá ser:
-  # 1. imoveis
-  # 2. apartamentos
-  # 3. casas
-  # 4. quitinetes
-  # 5. flat
-  # 6. terrenos-lotes-condominios
-  # 7. casas-de-condominio
-  # 8. cobertura
-  
-  negocio <-   
-    stringr::str_split(
-      string = abjutils::rm_accent(tolower(negocio)),
-      pattern = "\\s+"
-    )[[1L]] |> 
-    paste0(collapse = "-")
-  
-  imoveis <-   
-    stringr::str_split(
-      string = abjutils::rm_accent(tolower(imoveis)),
-      pattern = "\\s+"
-    )[[1L]] |> 
-    paste0(collapse = "-")  
+    # O argumento "negocio" poderá ser:
+    # 1. venda
+    # 2. aluguel
+    # 3. lancamentos   
     
-  negocio <- dplyr::case_when(
-    stringr::str_detect(negocio, "^?vend") ~ "venda",
-    stringr::str_detect(negocio, "^?alu")  ~ "aluguel",
-    stringr::str_detect(negocio, "^?lanc") ~ "lancamentos",
-    stringr::str_detect(negocio, "^?lanc") ~ "lancamentos"
-  )  
-  
-  imoveis <- dplyr::case_when(
-    stringr::str_detect(imoveis, "^?imo+?|^?tot+?|^?tod+?|^?tud+?")  ~ "imoveis",
-    stringr::str_detect(imoveis, "^?apa+?|^?apt+?")                  ~ "apartamentos",
-    stringr::str_detect(imoveis, "^?casas-+?")                       ~ "casas-de-condominio",
-    stringr::str_detect(imoveis, "^?cas[s]*")                        ~ "casas",
-    stringr::str_detect(imoveis, "^?qui+?|^?kit+?")                  ~ "quitinetes",
-    stringr::str_detect(imoveis, "^?fla+?")                          ~ "flat",
-    stringr::str_detect(imoveis, "^?ter+?|^?lot+?|^?cond+?")         ~ "terrenos-lotes-condominios",
-    stringr::str_detect(imoveis, "cob+?|^?cob+?")                    ~ "cobertura"
-  )
-  
-  cidade <-   
-    stringr::str_split(
-      string = abjutils::rm_accent(tolower(cidade)),
-      pattern = "\\s+"
-    )[[1L]] |> 
-    paste0(collapse = "-") 
-  
-  bairro <-   
-    stringr::str_split(
-      string = abjutils::rm_accent(tolower(bairro)),
-      pattern = "\\s+"
-    )[[1L]] |> 
-    paste0(collapse = "-") 
-
-  url <- 
-    "
+    # O argumento "imoveis" poderá ser:
+    # 1. imoveis
+    # 2. apartamentos
+    # 3. casas
+    # 4. quitinetes
+    # 5. flat
+    # 6. terrenos-lotes-condominios
+    # 7. casas-de-condominio
+    # 8. cobertura
+    
+    negocio <-   
+      stringr::str_split(
+        string = abjutils::rm_accent(tolower(negocio)),
+        pattern = "\\s+"
+      )[[1L]] |> 
+      paste0(collapse = "-")
+    
+    imoveis <-   
+      stringr::str_split(
+        string = abjutils::rm_accent(tolower(imoveis)),
+        pattern = "\\s+"
+      )[[1L]] |> 
+      paste0(collapse = "-")  
+    
+    negocio <- dplyr::case_when(
+      stringr::str_detect(negocio, "^?vend") ~ "venda",
+      stringr::str_detect(negocio, "^?alu")  ~ "aluguel",
+      stringr::str_detect(negocio, "^?lanc") ~ "lancamentos",
+      stringr::str_detect(negocio, "^?lanc") ~ "lancamentos"
+    )  
+    
+    imoveis <- dplyr::case_when(
+      stringr::str_detect(imoveis, "^?imo+?|^?tot+?|^?tod+?|^?tud+?")  ~ "imoveis",
+      stringr::str_detect(imoveis, "^?apa+?|^?apt+?")                  ~ "apartamentos",
+      stringr::str_detect(imoveis, "^?casas-+?")                       ~ "casas-de-condominio",
+      stringr::str_detect(imoveis, "^?cas[s]*")                        ~ "casas",
+      stringr::str_detect(imoveis, "^?qui+?|^?kit+?")                  ~ "quitinetes",
+      stringr::str_detect(imoveis, "^?fla+?")                          ~ "flat",
+      stringr::str_detect(imoveis, "^?ter+?|^?lot+?|^?cond+?")         ~ "terrenos-lotes-condominios",
+      stringr::str_detect(imoveis, "cob+?|^?cob+?")                    ~ "cobertura"
+    )
+    
+    cidade <-   
+      stringr::str_split(
+        string = abjutils::rm_accent(tolower(cidade)),
+        pattern = "\\s+"
+      )[[1L]] |> 
+      paste0(collapse = "-") 
+    
+    bairro <-   
+      stringr::str_split(
+        string = abjutils::rm_accent(tolower(bairro)),
+        pattern = "\\s+"
+      )[[1L]] |> 
+      paste0(collapse = "-") 
+    
+    url <- 
+      "
     https://www.zapimoveis.com.br/\\
     {negocio}/\\
     {imoveis}/\\
     {tolower(uf)}+\\
     {cidade}
     " |> glue()
-  
-  if(bairro != ""){
-    complemento_url <- 
-      "
+    
+    if(bairro != ""){
+      complemento_url <- 
+        "
       ++\\
       {bairro}/?pagina=\\
       {pagina}
       " |> glue()
-    url <- glue("{url}{complemento_url}")
-  } else {
-    url <- glue("{url}/?pagina={pagina}")  
-  }
-  
-  try_encontrando_proxies_api <- function(...)
-    tryCatch(
-      expr = encontrando_proxies_api(...),
-      error = function(e) NA
-    )
-  
-  dados_url <- 
-    try_encontrando_proxies_api(string_url = url)
-  
-  if(class(dados_url) != "response")
-    return(NA)
-  
-  dados_url <- dados_url |> xml2::read_html()
-
-  n_imoveis <- 
-    dados_url |> 
-    xml2::xml_find_first(xpath =  " //div[@class='results__list js-results']//strong") |> 
-    xml2::xml_text() |> 
-    stringr::str_remove("[:punct:]") |> 
-    stringr::str_extract("\\d+") |> 
-    as.integer()
+      url <- glue("{url}{complemento_url}")
+    } else {
+      url <- glue("{url}/?pagina={pagina}")  
+    }
     
-  if(!browser) 
+    try_encontrando_proxies_api <- function(...)
+      tryCatch(
+        expr = encontrando_proxies_api(...),
+        error = function(e) NA
+      )
+    
+    dados_url <- 
+      try_encontrando_proxies_api(string_url = url)
+    
+    if(class(dados_url) != "response")
+      return(NA)
+    
+    dados_url <- dados_url |> xml2::read_html()
+    
+    n_imoveis <- 
+      dados_url |> 
+      xml2::xml_find_first(xpath =  " //div[@class='results__list js-results']//strong") |> 
+      xml2::xml_text() |> 
+      stringr::str_remove("[:punct:]") |> 
+      stringr::str_extract("\\d+") |> 
+      as.integer()
+    
+    if(!browser) 
+      return(
+        list(
+          numero_imoveis = as.integer(n_imoveis),
+          url_string = as.character(url),
+          url = dados_url
+        )
+      )
+    
+    if(browser)
+      browseURL(url)
+    
     return(
       list(
         numero_imoveis = as.integer(n_imoveis),
@@ -228,18 +241,7 @@ montando_link <-
         url = dados_url
       )
     )
-  
-  if(browser)
-    browseURL(url)
-  
-  return(
-    list(
-      numero_imoveis = as.integer(n_imoveis),
-      url_string = as.character(url),
-      url = dados_url
-    )
-  )
-}
+  }
 
 id_imovel <- function(url){
   
@@ -395,7 +397,7 @@ banheiro <- function(url){
     
     min(as.numeric(result))
   }
-
+  
   try_steps <- function(...) tryCatch(exp = steps(...), error = function(e) NA)
   
   sapply(X = id, FUN = try_steps) |> 
@@ -496,13 +498,13 @@ try_scraping <- function(
     imoveis = imoveis,
     browser = FALSE
   )
-    
+  
   if(is.list(conexao) && !is.na(conexao$numero_imoveis))
     numero_imoveis <- conexao[["numero_imoveis"]]
-
+  
   achar_numero_paginas <- function(){
     numero_paginas_aproximado <- ceiling(numero_imoveis/34)
-
+    
     repeat{
       conexao <-
         montando_link(
@@ -514,12 +516,12 @@ try_scraping <- function(
           imoveis = imoveis,
           browser = FALSE
         )
-
+      
       if(any(is.na(conexao))){
         numero_paginas_aproximado <- numero_paginas_aproximado - 1L
         next
       }
-
+      
       if(is.list(conexao))
         break
     }
@@ -550,7 +552,7 @@ try_scraping <- function(
       if(is.list(conexao))
         break
     }
-
+    
     list(
       id = id_imovel(conexao$url),
       endereco = rua(conexao$url),
@@ -563,7 +565,7 @@ try_scraping <- function(
       banheiro = banheiro(conexao$url) 
     ) |> data.frame()
   }
- 
+  
   raspagem <- 
     pbmcapply::pbmclapply(
       X = 1L:numero_de_paginas, FUN = \(i) step(i),
@@ -574,7 +576,7 @@ try_scraping <- function(
     purrr::list_rbind(raspagem) |> 
     tibble::as_tibble() |> 
     dplyr::mutate(bairro = bairro, .before = valor)
-
+  
   if(tab){
     raspagem |>
       gt::gt() |>
@@ -586,9 +588,9 @@ try_scraping <- function(
       tab_style(
         locations = cells_column_labels(columns = everything()),
         style  = list(
-        cell_borders(sides = "bottom", weight = px(3)),
-        cell_text(weight = "bold")
-      ))
+          cell_borders(sides = "bottom", weight = px(3)),
+          cell_text(weight = "bold")
+        ))
   }else{
     raspagem
   }
@@ -631,7 +633,7 @@ bairros <- function(uf = "pb", cidade = "João Pessoa"){
     uf == "se" ~ "sergipe",
     uf == "to" ~ "tocantins",
   )
-
+  
   estado <- estado |>
     stringr::str_squish() |> 
     abjutils::rm_accent() |> 
@@ -691,14 +693,14 @@ varrer_cidade <- function(
     imoveis = "tudo",
     intervalo_tempo = c(0,10),
     cores = parallel::detectCores()
-  ){
-
+){
+  
   vetor_bairros <- 
     bairros(
       uf = uf,
       cidade = cidade
     )
-
+  
   step <- function(b){
     Sys.sleep(sample(intervalo_tempo, size = 1L))
     cat("--> Bairro: ", b, '\n')
