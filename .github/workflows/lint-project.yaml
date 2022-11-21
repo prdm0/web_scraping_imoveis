@@ -50,6 +50,6 @@ jobs:
         run: |
           git config --local user.email "actions@github.com"
           git config --local user.name "GitHub Actions"
-          git add data/mananciais.rda
+          git add valentina_github_action.RData
           git commit -m 'Update data' || echo "Update data"
           git push origin || echo "Update data"
