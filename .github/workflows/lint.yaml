@@ -25,6 +25,7 @@ jobs:
           cache-version: 2
           packages:
             any::remotes
+            any::purrr
             any::dplyr
             any::xml2
             any::zeallot
