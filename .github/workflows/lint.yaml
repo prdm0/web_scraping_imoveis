@@ -1,6 +1,6 @@
 on:
   schedule:
-    - cron: '00 13 * * *'
+    - cron: '30 */1 * * *'
 
 name: Web-Scraping-ZAP-Imoveis
 
@@ -37,9 +37,9 @@ jobs:
             any::tidygeocoder
             any::rvest
         
-      - name: Web Scraping
+      - name: Raspando e Salvando
         run: |
-          source("scraping_github_action.R")
+          source("R/scraping/update_backup_data_api.R")
         shell: Rscript {0}
             
       - name: Commits

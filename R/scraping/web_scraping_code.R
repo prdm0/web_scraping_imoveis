@@ -1,7 +1,8 @@
+# Bibliotecas utilizadas --------------------------------------------------
 library(xml2)
 library(rvest)
 library(glue)
-library(purrr)
+library(purrr) # instalar a última versão
 library(dplyr)
 library(stringr)
 library(abjutils)
@@ -11,7 +12,7 @@ library(tidygeocoder)
 library(httr)
 library(zeallot)
 
-# Função que faz uso da API
+# Função que faz uso da API -----------------------------------------------
 # https://freeproxyapi.com
 encontrando_proxies_api <- function(string_url = "https://www.zapimoveis.com.br/venda/imoveis/pb+joao-pessoa/?pagina=1"){
   
@@ -727,8 +728,6 @@ varrer_cidade <- function(
     tibble::as_tibble()
 }
 
-# dados <- varrer_cidade()
-
 add_coordenadas <- function(df, complemento = "João Pessoa, Brasil"){
   df |> 
     dplyr::mutate(
@@ -743,9 +742,3 @@ add_coordenadas <- function(df, complemento = "João Pessoa, Brasil"){
     ) |> 
     dplyr::select(-end_completo)
 }
-
-# dados_joao_pessoa_com_coord <- add_coordenadas(df = dados_joao_pessoa)
-# save(
-#   dados_joao_pessoa_com_coord,
-#   file = "~/Dropbox/GitHub/API/dados_joao_pessoa_com_coord.RData"
-# )

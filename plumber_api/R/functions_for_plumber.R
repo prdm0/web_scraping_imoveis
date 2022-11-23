@@ -1,12 +1,10 @@
-# Leitura do binario RData
-load("dados_joao_pessoa_com_coord.RData")
+# Leitura do binario data.RData
+load(fs::path(fs::path_wd(), "data/updated_data/data.RData"))
 
 # Base de dados sem tratamento --------------------------------------------
 # Nomes dos bairros de JP: conforme cadastro do zap imoveis ---------------
-bairros_jp <- function(df){
-  dados_joao_pessoa_com_coord$bairro |> 
-    unique()
-}
+bairros_jp <- function(df)
+  df$bairro |> unique()
 
 # Dados brutos conforme cadastros no zap imoveis -----------
 filtrando_por_bairro <- function(df, bairro)
