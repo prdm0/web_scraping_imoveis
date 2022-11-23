@@ -1,5 +1,7 @@
 source("R/scraping/web_scraping_code.R")
 
-cat(scraping(bairro = "bessa", tab = FALSE))
+dados <- scraping(bairro = "bessa", tab = FALSE)
+
+dados
 
 cat("--> ", parallel::detectCores(), "\n")
