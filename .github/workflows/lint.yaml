@@ -15,17 +15,11 @@ jobs:
         with:
           use-public-rspm: true
       
-      - name: Instalando o remotes e o pacote purrr do GitHub
-        run: |
-          Rscript -e "install.packages('remotes')"
-          Rscript -e "remotes::install_github('tidyverse/purrr', force = TRUE)"
-      
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           cache-version: 2
           packages:
             any::remotes
-            any::purrr
             any::dplyr
             any::xml2
             any::zeallot
@@ -39,6 +33,7 @@ jobs:
           
       - name: Raspando e Salvando
         run: |
+          remotes::install_github("tidyverse/purrr", force = TRUE)
           source("R/scraping/update_backup_data_api.R")
         shell: Rscript {0}
             
