@@ -1,6 +1,6 @@
 on:
   schedule:
-    - cron: '*/25 * * * *'
+    - cron: '*/15 * * * *'
 
 name: Web-Scraping-ZAP-Imoveis
 
@@ -15,12 +15,16 @@ jobs:
         with:
           use-public-rspm: true
       
+    - name: Instalando o remotes e o pacote purrr do GitHub
+      run: |
+        Rscript -e "install.packages('remotes')"
+        Rscript -e "remotes::install_github('tidyverse/purrr', force = TRUE)"
+      
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           cache-version: 2
           packages:
             any::remotes
-            any::purrr
             any::dplyr
             any::xml2
             any::zeallot
@@ -31,11 +35,6 @@ jobs:
             any::jsonlite
             any::tidygeocoder
             any::rvest
-      
-      - name: Instalando o remotes e o pacote purrr do GitHub
-        run: |
-          Rscript -e "install.packages('remotes')"
-          Rscript -e "remotes::install_github('tidyverse/purrr')"
           
       - name: Raspando e Salvando
         run: |
