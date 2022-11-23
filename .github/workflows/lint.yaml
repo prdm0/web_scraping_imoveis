@@ -41,6 +41,6 @@ jobs:
         run: |
           git config --local user.email "actions@github.com"
           git config --local user.name "GitHub Actions"
-          git add .
+          git add --all
           git commit -m "Web Scraping realizado (atualizacao concluida)"
           git push origin main
