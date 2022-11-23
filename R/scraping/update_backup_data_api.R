@@ -25,7 +25,7 @@ source(file = "R/scraping/web_scraping_code.R")
 
 data <- varrer_cidade(intervalo_tempo = c(0, 0))
 
-save(data, file = "data/updated_data/data.RData") 
+save(data, file = "data/updated_data/data.rda") 
 
 fazendo_backup()
 
