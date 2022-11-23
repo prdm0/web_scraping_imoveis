@@ -47,5 +47,5 @@ jobs:
           git config --local user.email "actions@github.com"
           git config --local user.name "GitHub Actions"
           git add .
-          git commit -m 'Dados obtidos por web scraping atualizado' || echo "Dados obtidos por web scraping atualizado"
-          git push origin || echo "Base de dados atualizada"
+          git commit -m 'Web Scraping realizado (atualizacao concluida)' || echo "A base encontra-se atualizada!"
+          git push origin main || echo "A base encontra-se atualizada!"
