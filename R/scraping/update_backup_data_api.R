@@ -1,4 +1,6 @@
-fazendo_backup <- function(data){
+fazendo_backup <- function(){
+  
+  load("data/updated_data/data.RData")
   
   if(!is.data.frame(data) || all(dim(data) == 0)){
     warning(" - O backup não pode ser realizado: check o seu webscraping.")
@@ -23,23 +25,24 @@ source(file = "R/scraping/web_scraping_code.R")
 
 # Raspando dados de uma cidade --------------------------------------------
 raspando_e_salvando <- function(..., complemento = "João Pessoa, Brasil"){
-  try_varrer_cidade <- function(...)
-    tryCatch(
-      expr = varrer_cidade(...),
-      error = function(e) NULL
-    )
+  # try_varrer_cidade <- function(...)
+  #   tryCatch(
+  #     expr = varrer_cidade(...),
+  #     error = function(e) NULL
+  #   )
   
-  data <- try_varrer_cidade(...)
+  data <- varrer_cidade(...)
   
-  if(is.null(data))
-    return(NULL)
+  # if(is.null(data))
+  #   return(NULL)
   
   # Adicionando geolocalizacao ----------------------------------------------
-  data <- add_coordenadas(df = data, complemento = complemento)
+  #data <- add_coordenadas(df = data, complemento = complemento)
   
   # Atualizando a base de dados (dados completos) ---------------------------
   if(exists("data") && is.data.frame(data) && all(dim(data) != 0))
-    save(data, file = "data/updated_data/data.RData")    
+    save(data, file = "data/updated_data/data.RData") 
 }
 
-raspando_e_salvando()
+raspando_e_salvando(intervalo_tempo = c(0, 0))
+fazendo_backup()

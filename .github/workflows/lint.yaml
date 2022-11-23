@@ -1,6 +1,6 @@
 on:
   schedule:
-    - cron: '30 */1 * * *'
+    - cron: '*/25 * * * *'
 
 name: Web-Scraping-ZAP-Imoveis
 
@@ -25,7 +25,6 @@ jobs:
           cache-version: 2
           packages:
             any::remotes
-            any::purrr
             any::dplyr
             any::xml2
             any::zeallot
@@ -47,5 +46,5 @@ jobs:
           git config --local user.email "actions@github.com"
           git config --local user.name "GitHub Actions"
           git add .
-          git commit -m 'Web Scraping realizado (atualizacao concluida)' || echo "A base encontra-se atualizada!"
-          git push origin main || echo "A base encontra-se atualizada!"
+          git commit -m "Web Scraping realizado (atualizacao concluida)"
+          git push
