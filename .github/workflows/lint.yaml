@@ -48,4 +48,4 @@ jobs:
           git config --local user.name "GitHub Actions"
           git add .
           git commit -m 'Dados obtidos por web scraping atualizado' || echo "Dados obtidos por web scraping atualizado"
-          git push origin || echo "Base de dados atualizada" --force
+          git push origin || echo "Base de dados atualizada"
