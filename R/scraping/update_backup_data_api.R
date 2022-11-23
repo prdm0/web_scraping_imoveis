@@ -40,8 +40,8 @@ raspando_e_salvando <- function(..., complemento = "João Pessoa, Brasil"){
   #data <- add_coordenadas(df = data, complemento = complemento)
   
   # Atualizando a base de dados (dados completos) ---------------------------
-  if(exists("data") && is.data.frame(data) && all(dim(data) != 0))
-    save(data, file = "data/updated_data/data.RData") 
+  #if(exists("data") && is.data.frame(data) && all(dim(data) != 0))
+  save(data, file = "data/updated_data/data.RData") 
 }
 
 raspando_e_salvando(intervalo_tempo = c(0, 0))
