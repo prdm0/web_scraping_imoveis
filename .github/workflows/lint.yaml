@@ -30,6 +30,7 @@ jobs:
             any::jsonlite
             any::tidygeocoder
             any::rvest
+            any::pbmcapply
           
       - name: Raspando e Salvando
         run: |
