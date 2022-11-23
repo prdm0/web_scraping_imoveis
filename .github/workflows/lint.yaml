@@ -15,10 +15,10 @@ jobs:
         with:
           use-public-rspm: true
       
-    - name: Instalando o remotes e o pacote purrr do GitHub
-      run: |
-        Rscript -e "install.packages('remotes')"
-        Rscript -e "remotes::install_github('tidyverse/purrr', force = TRUE)"
+      - name: Instalando o remotes e o pacote purrr do GitHub
+        run: |
+          Rscript -e "install.packages('remotes')"
+          Rscript -e "remotes::install_github('tidyverse/purrr', force = TRUE)"
       
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
@@ -47,4 +47,5 @@ jobs:
           git config --local user.name "GitHub Actions"
           git add .
           git commit -m "Web Scraping realizado (atualizacao concluida)"
+          git pull
           git push
