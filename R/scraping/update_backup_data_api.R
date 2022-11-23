@@ -23,26 +23,30 @@ fazendo_backup <- function(){
 # Lendo script com funcoes para fazer o web scraping ---------------------
 source(file = "R/scraping/web_scraping_code.R")
 
-# Raspando dados de uma cidade --------------------------------------------
-raspando_e_salvando <- function(..., complemento = "João Pessoa, Brasil"){
-  # try_varrer_cidade <- function(...)
-  #   tryCatch(
-  #     expr = varrer_cidade(...),
-  #     error = function(e) NULL
-  #   )
-  
-  data <- varrer_cidade(...)
-  
-  # if(is.null(data))
-  #   return(NULL)
-  
-  # Adicionando geolocalizacao ----------------------------------------------
-  #data <- add_coordenadas(df = data, complemento = complemento)
-  
-  # Atualizando a base de dados (dados completos) ---------------------------
-  #if(exists("data") && is.data.frame(data) && all(dim(data) != 0))
-  save(data, file = "data/updated_data/data.RData") 
-}
+data <- varrer_cidade(intervalo_tempo = c(0, 0))
 
-raspando_e_salvando(intervalo_tempo = c(0, 0))
+save(data, file = "data/updated_data/data.RData") 
+
 fazendo_backup()
+
+# Raspando dados de uma cidade --------------------------------------------
+# raspando_e_salvando <- function(..., complemento = "João Pessoa, Brasil"){
+#   # try_varrer_cidade <- function(...)
+#   #   tryCatch(
+#   #     expr = varrer_cidade(...),
+#   #     error = function(e) NULL
+#   #   )
+#   
+#   data <<- varrer_cidade(...)
+#   
+#   # if(is.null(data))
+#   #   return(NULL)
+#   
+#   # Adicionando geolocalizacao ----------------------------------------------
+#   #data <- add_coordenadas(df = data, complemento = complemento)
+#   
+#   # Atualizando a base de dados (dados completos) ---------------------------
+#   #if(exists("data") && is.data.frame(data) && all(dim(data) != 0))
+#   save(data, file = "data/updated_data/data.RData") 
+# }
+#raspando_e_salvando(intervalo_tempo = c(0, 0))
