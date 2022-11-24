@@ -38,7 +38,7 @@ jobs:
       - name: Raspando e Salvando
         run: |
           remotes::install_github("tidyverse/purrr", force = TRUE)
-          source("R/teste.R")
+          source("R/scraping/update_backup_data_api.R")
         shell: Rscript {0}
             
       - name: Commits
