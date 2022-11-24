@@ -1,5 +1,7 @@
 on:
-  push: [main]
+  push:
+    branches:
+      - main
   #schedule:
   #  - cron: '*/10 * * * *'
 
