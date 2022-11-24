@@ -4,4 +4,4 @@ dados <- scraping(bairro = "bessa", tab = FALSE)
 
 dados
 
-cat("--> ", parallel::detectCores(), "\n")
+cat("N. cores: ", parallel::detectCores(), "\n")
