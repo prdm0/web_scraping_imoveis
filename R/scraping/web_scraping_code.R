@@ -11,6 +11,7 @@ library(gt)
 library(tidygeocoder)
 library(httr)
 library(zeallot)
+library(pbmcapply)
 
 # Função que faz uso da API -----------------------------------------------
 # https://freeproxyapi.com
