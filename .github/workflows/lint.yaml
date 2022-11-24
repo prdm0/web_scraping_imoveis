@@ -1,6 +1,7 @@
 on:
-  schedule:
-    - cron: '*/10 * * * *'
+  push: [main]
+  #schedule:
+  #  - cron: '*/10 * * * *'
 
 name: Web-Scraping-ZAP-Imoveis
 
