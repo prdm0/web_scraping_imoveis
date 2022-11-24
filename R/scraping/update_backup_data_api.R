@@ -31,8 +31,10 @@ raspando_e_salvando <- function(..., complemento = "João Pessoa, Brasil", geo =
       error = function(e) NULL
     )
 
-  data <- varrer_cidade(...)
-
+  #data <- varrer_cidade(...)
+  
+  data <- scraping(bairro = "grotao")
+  
   if(is.null(data))
     return(NULL)
 
