@@ -14,6 +14,7 @@ library(zeallot)
 library(pbmcapply)
 
 
+
 # Função que faz uso da API -----------------------------------------------
 # https://freeproxyapi.com
 encontrando_proxies_api <- function(string_url = "https://www.zapimoveis.com.br/venda/imoveis/pb+joao-pessoa/?pagina=1"){
