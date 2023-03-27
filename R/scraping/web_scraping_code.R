@@ -12,6 +12,7 @@ library(tidygeocoder)
 library(httr)
 library(zeallot)
 library(pbmcapply)
+library(fs)
 
 # Função que faz uso da API -----------------------------------------------
 # https://freeproxyapi.com
@@ -115,7 +116,8 @@ montando_link <-
     cidade = "Joao Pessoa",
     bairro = "",
     imoveis = "imoveis",
-    browser = TRUE
+    browser = TRUE,
+    covariavel = ""
   ){
     
     # O argumento "negocio" poderá ser:
@@ -132,6 +134,19 @@ montando_link <-
     # 6. terrenos-lotes-condominios
     # 7. casas-de-condominio
     # 8. cobertura
+    
+    # O argumento "covariaveis" podera ser:
+    # 1. elevador
+    # 2. piscina
+    # 3. salao-de-festas
+    # 4. academia
+    # 5. varanda-gourmet
+    # 6. acesso-24-horas
+    # 7. playground
+    # 8. churrasqueira
+    # 9. spa-com-hidromassagem
+    # 10. sauna
+    # 11. quadra-poliesportiva
     
     negocio <-   
       stringr::str_split(
@@ -181,7 +196,7 @@ montando_link <-
     
     url <- 
       "
-    https://www.zapimoveis.com.br/\\
+    www.zapimoveis.com.br/\\
     {negocio}/\\
     {imoveis}/\\
     {tolower(uf)}+\\
@@ -189,17 +204,21 @@ montando_link <-
     " |> glue()
     
     if(bairro != ""){
-      complemento_url <- 
-        "
-      ++\\
-      {bairro}/?pagina=\\
-      {pagina}
-      " |> glue()
-      url <- glue("{url}{complemento_url}")
+      url <- glue::glue(
+        "https://",
+        fs::path(
+          glue::glue("{url}++{bairro}"),
+          covariavel,
+          glue::glue("?pagina={pagina}")
+        )
+      )
     } else {
-      url <- glue("{url}/?pagina={pagina}")  
+      url <- glue::glue(
+        "https://",
+        fs::path(url, covariavel, glue::glue("?pagina={pagina}"))
+      )
     }
-    
+
     try_encontrando_proxies_api <- function(...)
       tryCatch(
         expr = encontrando_proxies_api(...),
@@ -472,7 +491,8 @@ try_scraping <- function(
     bairro = "altiplano cabo branco",
     imoveis = "tudo",
     cores = parallel::detectCores(),
-    tab = TRUE){
+    tab = TRUE,
+    covariavel = ""){
   
   # O argumento "negocio" poderá ser:
   # 1. venda
@@ -496,7 +516,8 @@ try_scraping <- function(
     cidade = cidade,
     bairro = bairro,
     imoveis = imoveis,
-    browser = FALSE
+    browser = FALSE,
+    covariavel = covariavel
   )
   
   if(is.list(conexao) && !is.na(conexao$numero_imoveis))
@@ -514,7 +535,8 @@ try_scraping <- function(
           cidade = cidade,
           bairro = bairro,
           imoveis = imoveis,
-          browser = FALSE
+          browser = FALSE,
+          covariavel = covariavel
         )
       
       if(any(is.na(conexao))){
@@ -546,7 +568,8 @@ try_scraping <- function(
           cidade,
           bairro,
           imoveis,
-          browser = FALSE
+          browser = FALSE,
+          covariavel = covariavel
         )
       
       if(is.list(conexao))
@@ -562,7 +585,8 @@ try_scraping <- function(
       condominio = condominio(conexao$url),
       quarto = quarto(conexao$url),
       vaga = vaga(conexao$url),
-      banheiro = banheiro(conexao$url) 
+      banheiro = banheiro(conexao$url),
+      url = conexao$url_string
     ) |> data.frame()
   }
   
@@ -683,6 +707,22 @@ bairros <- function(uf = "pb", cidade = "João Pessoa"){
     # padre zé
     
     return(c(bairros_api, complemento))
+    
+  } else if(cidade == "cabedelo") {
+    complemento <- c(
+      "camboinha",
+      "jd-brasilia",
+      "jd-america",
+      "lot-recanto-do-poco",
+      "sta-catarina",
+      "lot-pq-esperanca",
+      "pq-verde"
+      
+    )
+    return(c(bairros_api, complemento))
+    
+  } else {
+    return(bairros_api)
   }
 }
 
@@ -692,7 +732,8 @@ varrer_cidade <- function(
     cidade = "joao pessoa",
     imoveis = "tudo",
     intervalo_tempo = c(0,10),
-    cores = parallel::detectCores()
+    cores = parallel::detectCores(),
+    covariavel = ""
 ){
   
   vetor_bairros <- 
@@ -712,7 +753,8 @@ varrer_cidade <- function(
       bairro = b,
       imoveis = imoveis,
       cores = cores,
-      tab = FALSE
+      tab = FALSE,
+      covariavel = covariavel
     ) |> dplyr::mutate(bairro = b)
   }
   
