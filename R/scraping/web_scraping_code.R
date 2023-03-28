@@ -13,11 +13,83 @@ library(httr)
 library(zeallot)
 library(pbmcapply)
 
-
 # Função que faz uso da API -----------------------------------------------
 # https://freeproxyapi.com
-encontrando_proxies_api <- function(string_url = "https://www.zapimoveis.com.br/venda/imoveis/pb+joao-pessoa/?pagina=1"){
+# encontrando_proxies_api <- function(string_url = "https://www.zapimoveis.com.br/venda/imoveis/pb+joao-pessoa/?pagina=1"){
+#   
+#   try_GET <- function(...)
+#     tryCatch(
+#       expr = httr::GET(...),
+#       error = function(e) NA
+#     )
+#   
+#   teste_url <- function(x){
+#     try_GET(
+#       url = string_url,
+#       httr::use_proxy(
+#         url = x$ip,
+#         port = x$port
+#       )
+#     )
+#   }
+#   
+#   obter_proxy <- function()
+#     glue("https://public.freeproxyapi.com/api/Proxy/ProxyByType/0/4") |> 
+#     jsonlite::fromJSON()
+#   
+#   proxy <- obter_proxy()
+#   result <- teste_url(proxy)
+#   
+#   repeat{
+#     
+#     if(result$status_code != 200)
+#       break
+#     
+#     if(class(result) == "response" && is.numeric(result$status_code))
+#       break
+#     
+#     proxy <- obter_proxy()
+#     result <- teste_url(proxy)
+#   }
+#   
+#   pagina_vazia <- function(){
+#     string_url |> 
+#       xml2::read_html() |> 
+#       xml2::xml_find_first(xpath =  "//div[@class='results__list js-results']//strong")
+#   }
+#   
+#   if(result$status_code != 200 | is.na(pagina_vazia()))
+#     return(NA)
+#   else
+#     return(result)
+# }
+
+extrair_ip_porta <- function(string) {
+  padrao <- "^(?:[^ ]+ ){4}([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+):([0-9]+)"
+  correspondencias <- str_match(string, padrao)
+  if (is.na(correspondencias[1L])) {
+    stop("Padrão não encontrado na string fornecida.")
+  } else {
+    ip <- correspondencias[2L]
+    porta <- correspondencias[3L]
+    c(ip, porta)
+  }
+}
+
+obter_proxy <- function(n = 1L){
+  l <- 
+    glue("proxybroker find --types HTTPS --strict -l {n}") |> 
+    system(ignore.stderr = TRUE, intern = TRUE) |> 
+    extrair_ip_porta()
   
+  list(ip = l[[1L]], port = as.integer(l[[2L]]))
+}
+
+#m = obter_proxy()
+
+###############
+
+encontrando_proxies_api <- function(string_url = "https://www.zapimoveis.com.br/venda/imoveis/pb+joao-pessoa/?pagina=1"){
   try_GET <- function(...)
     tryCatch(
       expr = httr::GET(...),
@@ -34,21 +106,17 @@ encontrando_proxies_api <- function(string_url = "https://www.zapimoveis.com.br/
     )
   }
   
-  obter_proxy <- function()
-    glue("https://public.freeproxyapi.com/api/Proxy/ProxyByType/0/4") |> 
-    jsonlite::fromJSON()
-  
   proxy <- obter_proxy()
   result <- teste_url(proxy)
   
   repeat{
     
-    if(result$status_code != 200)
+    if(class(result) == "response" && result$status_code == 200)
       break
     
-    if(class(result) == "response" && is.numeric(result$status_code))
-      break
-    
+    # if(class(result) == "response" && is.numeric(result$status_code))
+    #   break
+
     proxy <- obter_proxy()
     result <- teste_url(proxy)
   }
@@ -67,45 +135,45 @@ encontrando_proxies_api <- function(string_url = "https://www.zapimoveis.com.br/
 
 # Encontrando proxies usando o proxybroker2
 # https://github.com/bluet/proxybroker2
-encontrando_proxies_proxybroker2 <- function(
-    n = 1L, 
-    nivel = "alto",
-    tipo = "https",
-    paises = NULL){
-  
-  nivel <- tolower(nivel)
-  
-  nivel <- dplyr::case_when(
-    nivel == "alto"         ~ "High",
-    nivel == "anonimo"      ~ "Anonymous",
-    nivel == "transparente" ~ "Transparent"
-  )
-  
-  if(is.null(paises)) 
-    lista_paises <- ""
-  else 
-    lista_paises <- glue("--countries {paste(paises, collapse = ' ')}")
-  
-  command <- 
-    "docker run bluet/proxybroker2 find --types {tipo}\\
-     --lvl {nivel} {lista_paises} --strict -l {n}
-    " |> glue()
-  
-  proxy <-
-    system(
-      command = command,
-      intern = TRUE,
-      ignore.stderr = TRUE
-    ) |> 
-    as.character() |> 
-    stringr::str_extract("\\d+.\\d+.\\d+.\\d+:\\d+")
-  
-  ip <- proxy |> stringr::str_extract("\\d+.\\d+.\\d+.\\d+")
-  porta <- proxy |>
-    stringr::str_remove(glue("{ip}:"))
-  
-  list(ip = ip, porta = as.integer(porta))
-}
+# encontrando_proxies_proxybroker2 <- function(
+#     n = 1L, 
+#     nivel = "alto",
+#     tipo = "https",
+#     paises = NULL){
+#   
+#   nivel <- tolower(nivel)
+#   
+#   nivel <- dplyr::case_when(
+#     nivel == "alto"         ~ "High",
+#     nivel == "anonimo"      ~ "Anonymous",
+#     nivel == "transparente" ~ "Transparent"
+#   )
+#   
+#   if(is.null(paises)) 
+#     lista_paises <- ""
+#   else 
+#     lista_paises <- glue("--countries {paste(paises, collapse = ' ')}")
+#   
+#   command <- 
+#     "docker run bluet/proxybroker2 find --types {tipo}\\
+#      --lvl {nivel} {lista_paises} --strict -l {n}
+#     " |> glue()
+#   
+#   proxy <-
+#     system(
+#       command = command,
+#       intern = TRUE,
+#       ignore.stderr = TRUE
+#     ) |> 
+#     as.character() |> 
+#     stringr::str_extract("\\d+.\\d+.\\d+.\\d+:\\d+")
+#   
+#   ip <- proxy |> stringr::str_extract("\\d+.\\d+.\\d+.\\d+")
+#   porta <- proxy |>
+#     stringr::str_remove(glue("{ip}:"))
+#   
+#   list(ip = ip, porta = as.integer(porta))
+# }
 
 # Montando links para raspagem --------------------------------------------
 montando_link <- 
@@ -215,13 +283,30 @@ montando_link <-
     
     dados_url <- dados_url |> xml2::read_html()
     
+    extrai_n_imoveis <- function(str) {
+      # Extrai apenas os dígitos da string usando regex
+      valor <- gsub("[^0-9]", "", str)
+      # Converte a string de dígitos para um número inteiro
+      valor <- as.integer(valor)
+      return(valor)
+    }
+    
     n_imoveis <- 
       dados_url |> 
-      xml2::xml_find_first(xpath =  " //div[@class='results__list js-results']//strong") |> 
+      xml2::xml_find_first(
+        xpath =  "//h1[@class='summary__title js-summary-title heading-regular heading-regular__bold align-left text-margin-zero results__title']"
+      ) |> 
       xml2::xml_text() |> 
-      stringr::str_remove("[:punct:]") |> 
-      stringr::str_extract("\\d+") |> 
-      as.integer()
+      extrai_n_imoveis()
+      
+    
+    # n_imoveis <- 
+    #   dados_url |> 
+    #   xml2::xml_find_first(xpath =  " //div[@class='results__list js-results']//strong") |> 
+    #   xml2::xml_text() |> 
+    #   stringr::str_remove("[:punct:]") |> 
+    #   stringr::str_extract("\\d+") |> 
+    #   as.integer()
     
     if(!browser) 
       return(
@@ -503,34 +588,35 @@ try_scraping <- function(
   if(is.list(conexao) && !is.na(conexao$numero_imoveis))
     numero_imoveis <- conexao[["numero_imoveis"]]
   
-  achar_numero_paginas <- function(){
-    numero_paginas_aproximado <- ceiling(numero_imoveis/34)
-    
-    repeat{
-      conexao <-
-        montando_link(
-          pagina = numero_paginas_aproximado,
-          negocio = negocio,
-          uf = uf,
-          cidade = cidade,
-          bairro = bairro,
-          imoveis = imoveis,
-          browser = FALSE
-        )
-      
-      if(any(is.na(conexao))){
-        numero_paginas_aproximado <- numero_paginas_aproximado - 1L
-        next
-      }
-      
-      if(is.list(conexao))
-        break
-    }
-    numero_paginas_aproximado
-  }
+  # achar_numero_paginas <- function(){
+  #   numero_paginas_aproximado <- ceiling(numero_imoveis/34)
+  #   
+  #   repeat{
+  #     conexao <-
+  #       montando_link(
+  #         pagina = numero_paginas_aproximado,
+  #         negocio = negocio,
+  #         uf = uf,
+  #         cidade = cidade,
+  #         bairro = bairro,
+  #         imoveis = imoveis,
+  #         browser = FALSE
+  #       )
+  #     
+  #     if(any(is.na(conexao))){
+  #       numero_paginas_aproximado <- numero_paginas_aproximado - 1L
+  #       next
+  #     }
+  #     
+  #     if(is.list(conexao))
+  #       break
+  #   }
+  #   numero_paginas_aproximado
+  # }
   
-  numero_de_paginas <- achar_numero_paginas() |>
-    suppressWarnings()
+  numero_de_paginas <- round(numero_imoveis/100, 0L)
+  # numero_de_paginas <- achar_numero_paginas() |>
+  #   suppressWarnings()
   
   #numero_de_paginas <- (numero_imoveis/34) |> ceiling()
   
